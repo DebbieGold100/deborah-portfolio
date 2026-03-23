@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Candidate Qualification Prediction System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181c24;
+    --border: #2a2218;
+    --accent: #ff8c00;
+    --accent2: #ff5500;
+    --green: #00ff88;
+    --red: #ff4d6a;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+}
+     
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 52px;
+      animation: fadeDown 0.7s ease both;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,229,255,0.07);
+      border: 1px solid rgba(0,229,255,0.2);
+      color: var(--accent);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    .badge-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(28px, 5vw, 46px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.04em;
+    }
+
+    /* Card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 36px;
+      animation: fadeUp 0.7s ease 0.15s both;
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Grid form */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .field label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--label);
+    }
+
+    .field input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      padding: 11px 14px;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    .field input::-webkit-outer-spin-button,
+    .field input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,229,255,0.1);
+    }
+
+    .field input.error {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(255,77,106,0.1);
+    }
+
+    .field .hint {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .field .err-msg {
+      font-size: 10px;
+      color: var(--red);
+      display: none;
+    }
+
+    .field.has-error .err-msg { display: block; }
+
+    /* Actions */
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 14px 28px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-reset {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-reset:hover { border-color: var(--muted); color: var(--text); }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    /* Result panel */
+    .result-panel {
+      margin-top: 28px;
+      border-radius: 10px;
+      padding: 28px 32px;
+      border: 1px solid;
+      display: none;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .result-panel.qualified {
+      background: rgba(0,255,136,0.05);
+      border-color: rgba(0,255,136,0.3);
+    }
+
+    .result-panel.not-qualified {
+      background: rgba(255,77,106,0.05);
+      border-color: rgba(255,77,106,0.3);
+    }
+
+    .result-panel.error-state {
+      background: rgba(255,165,0,0.05);
+      border-color: rgba(255,165,0,0.3);
+    }
+
+    .result-label {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .result-status {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(22px, 4vw, 34px);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .result-icon {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .qualified .result-icon { background: rgba(0,255,136,0.15); }
+    .not-qualified .result-icon { background: rgba(255,77,106,0.15); }
+
+    .qualified .result-status { color: var(--green); }
+    .not-qualified .result-status { color: var(--red); }
+    .error-state .result-status { color: orange; font-size: 16px; }
+
+    .result-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+      letter-spacing: 0.04em;
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 32px 0;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      margin-top: 48px;
+      animation: fadeUp 0.7s ease 0.3s both;
+    }
+
+    /* Animations */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    @media (max-width: 600px) {
+      .card { padding: 24px 18px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+      .btn-primary { min-width: unset; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">
+      <span class="badge-dot"></span>
+      ML Model Active
+    </div>
+    <h1>Candidate <span>Qualification</span><br/>Prediction System</h1>
+    <p class="subtitle">Enter candidate details below to receive an AI-powered hiring assessment</p>
+  </header>
+
+  <div class="card">
+    <div class="card-title">Candidate Information Form</div>
+
+    <form id="predForm" novalidate>
+      <div class="form-grid">
+
+        <div class="field" id="field-age">
+          <label for="age">Age</label>
+          <input type="number" id="age" name="age" placeholder="e.g. 28" min="16" max="80"/>
+          <span class="hint">Candidate's age in years</span>
+          <span class="err-msg">Please enter a valid age (16–80)</span>
+        </div>
+
+        <div class="field" id="field-experience">
+          <label for="experience">Years of Experience</label>
+          <input type="number" id="experience" name="experience" placeholder="e.g. 5" min="0" max="60"/>
+          <span class="hint">Total professional experience</span>
+          <span class="err-msg">Enter years of experience (0–60)</span>
+        </div>
+
+        <div class="field" id="field-education">
+          <label for="education">Education Level</label>
+          <input type="number" id="education" name="education" placeholder="e.g. 3 (1–5 scale)" min="1" max="5"/>
+          <span class="hint">1 = High School → 5 = PhD</span>
+          <span class="err-msg">Enter education level (1–5)</span>
+        </div>
+
+        <div class="field" id="field-skill_match">
+          <label for="skill_match">Skill Match Score</label>
+          <input type="number" id="skill_match" name="skill_match" placeholder="e.g. 78" min="0" max="100"/>
+          <span class="hint">Score out of 100</span>
+          <span class="err-msg">Enter a score between 0 and 100</span>
+        </div>
+
+        <div class="field" id="field-certifications">
+          <label for="certifications">Certifications</label>
+          <input type="number" id="certifications" name="certifications" placeholder="e.g. 3" min="0"/>
+          <span class="hint">Number of relevant certifications</span>
+          <span class="err-msg">Enter a valid number (≥ 0)</span>
+        </div>
+
+        <div class="field" id="field-technical_test">
+          <label for="technical_test">Technical Test Score</label>
+          <input type="number" id="technical_test" name="technical_test" placeholder="e.g. 85" min="0" max="100"/>
+          <span class="hint">Score out of 100</span>
+          <span class="err-msg">Enter a score between 0 and 100</span>
+        </div>
+
+        <div class="field" id="field-interview">
+          <label for="interview">Interview Score</label>
+          <input type="number" id="interview" name="interview" placeholder="e.g. 72" min="0" max="100"/>
+          <span class="hint">Score out of 100</span>
+          <span class="err-msg">Enter a score between 0 and 100</span>
+        </div>
+
+        <div class="field" id="field-communication">
+          <label for="communication">Communication Score</label>
+          <input type="number" id="communication" name="communication" placeholder="e.g. 80" min="0" max="100"/>
+          <span class="hint">Score out of 100</span>
+          <span class="err-msg">Enter a score between 0 and 100</span>
+        </div>
+
+        <div class="field" id="field-problem_solving">
+          <label for="problem_solving">Problem Solving Score</label>
+          <input type="number" id="problem_solving" name="problem_solving" placeholder="e.g. 75" min="0" max="100"/>
+          <span class="hint">Score out of 100</span>
+          <span class="err-msg">Enter a score between 0 and 100</span>
+        </div>
+
+        <div class="field" id="field-prev_salary">
+          <label for="prev_salary">Previous Salary (USD)</label>
+          <input type="number" id="prev_salary" name="prev_salary" placeholder="e.g. 55000" min="0"/>
+          <span class="hint">Last drawn annual salary</span>
+          <span class="err-msg">Enter a valid salary amount</span>
+        </div>
+
+        <div class="field" id="field-exp_salary">
+          <label for="exp_salary">Expected Salary (USD)</label>
+          <input type="number" id="exp_salary" name="exp_salary" placeholder="e.g. 70000" min="0"/>
+          <span class="hint">Expected annual salary</span>
+          <span class="err-msg">Enter a valid salary amount</span>
+        </div>
+
+        <div class="field" id="field-job_relevance">
+          <label for="job_relevance">Job Relevance Score</label>
+          <input type="number" id="job_relevance" name="job_relevance" placeholder="e.g. 88" min="0" max="100"/>
+          <span class="hint">Score out of 100</span>
+          <span class="err-msg">Enter a score between 0 and 100</span>
+        </div>
+
+        <div class="field" id="field-projects">
+          <label for="projects">Projects Completed</label>
+          <input type="number" id="projects" name="projects" placeholder="e.g. 12" min="0"/>
+          <span class="hint">Total relevant projects</span>
+          <span class="err-msg">Enter a valid number (≥ 0)</span>
+        </div>
+
+        <div class="field" id="field-emp_gaps">
+          <label for="emp_gaps">Employment Gaps (Months)</label>
+          <input type="number" id="emp_gaps" name="emp_gaps" placeholder="e.g. 4" min="0"/>
+          <span class="hint">Total months of career gaps</span>
+          <span class="err-msg">Enter a valid number (≥ 0)</span>
+        </div>
+
+        <div class="field" id="field-qual_score">
+          <label for="qual_score">Qualification Score</label>
+          <input type="number" id="qual_score" name="qual_score" placeholder="e.g. 82" min="0" max="100"/>
+          <span class="hint">Overall qualification score</span>
+          <span class="err-msg">Enter a score between 0 and 100</span>
+        </div>
+
+      </div><!-- /form-grid -->
+
+      <div class="actions">
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          Predict Candidate Qualification
+        </button>
+        <button type="button" class="btn btn-reset" id="resetBtn">
+          Reset Form
+        </button>
+      </div>
+    </form>
+
+    <!-- Result Panel -->
+    <div class="result-panel" id="resultPanel">
+      <div class="result-label">Prediction Result</div>
+      <div class="result-status" id="resultStatus">
+        <div class="result-icon" id="resultIcon"></div>
+        <span id="resultText"></span>
+      </div>
+      <div class="result-meta" id="resultMeta"></div>
+    </div>
+
+  </div><!-- /card -->
+
+  <footer>
+    Candidate Qualification Prediction System &mdash; Powered by ML Backend API
+  </footer>
+
+</div><!-- /container -->
+
+<script>
+  // ── Field config ──────────────────────────────────────────────
+  const fields = [
+    { id: 'age',          key: 'age',                min: 16,   max: 80,   int: true  },
+    { id: 'experience',   key: 'years_of_experience',min: 0,    max: 60,   int: true  },
+    { id: 'education',    key: 'education_level',    min: 1,    max: 5,    int: true  },
+    { id: 'skill_match',  key: 'skill_match_score',  min: 0,    max: 100              },
+    { id: 'certifications',key:'certifications',     min: 0,               int: true  },
+    { id: 'technical_test',key:'technical_test_score',min:0,   max: 100              },
+    { id: 'interview',    key: 'interview_score',    min: 0,    max: 100              },
+    { id: 'communication',key: 'communication_score',min: 0,   max: 100              },
+    { id: 'problem_solving',key:'problem_solving_score',min:0, max: 100              },
+    { id: 'prev_salary',  key: 'previous_salary',    min: 0                          },
+    { id: 'exp_salary',   key: 'expected_salary',    min: 0                          },
+    { id: 'job_relevance',key: 'job_relevance_score',min: 0,   max: 100              },
+    { id: 'projects',     key: 'projects_completed', min: 0,               int: true  },
+    { id: 'emp_gaps',     key: 'employment_gaps',    min: 0,               int: true  },
+    { id: 'qual_score',   key: 'qualification_score',min: 0,   max: 100              },
+  ];
+
+  // ── Validate a single field ───────────────────────────────────
+  function validateField(cfg) {
+    const input = document.getElementById(cfg.id);
+    const wrap  = document.getElementById('field-' + cfg.id);
+    const raw   = input.value.trim();
+
+    if (raw === '' || isNaN(Number(raw))) {
+      wrap.classList.add('has-error');
+      input.classList.add('error');
+      return null;
+    }
+
+    const val = Number(raw);
+    if (cfg.min !== undefined && val < cfg.min) {
+      wrap.classList.add('has-error'); input.classList.add('error'); return null;
+    }
+    if (cfg.max !== undefined && val > cfg.max) {
+      wrap.classList.add('has-error'); input.classList.add('error'); return null;
+    }
+    if (cfg.int && !Number.isInteger(val)) {
+      wrap.classList.add('has-error'); input.classList.add('error'); return null;
+    }
+
+    wrap.classList.remove('has-error');
+    input.classList.remove('error');
+    return val;
+  }
+
+  // ── Form submit ───────────────────────────────────────────────
+  document.getElementById('predForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    let valid = true;
+    const payload = {};
+
+    fields.forEach(cfg => {
+      const val = validateField(cfg);
+      if (val === null) valid = false;
+      else payload[cfg.key] = val;
+    });
+
+    if (!valid) return;
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Analyzing...';
+
+    const panel = document.getElementById('resultPanel');
+    panel.style.display = 'none';
+    panel.className = 'result-panel';
+
+    try {
+      const response = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+      const data = await response.json();
+      showResult(data);
+    } catch (err) {
+      showError(err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Predict Candidate Qualification';
+    }
+  });
+
+  // ── Show result ───────────────────────────────────────────────
+  function showResult(data) {
+    const panel    = document.getElementById('resultPanel');
+    const icon     = document.getElementById('resultIcon');
+    const text     = document.getElementById('resultText');
+    const meta     = document.getElementById('resultMeta');
+
+    // Support both {prediction: "Qualified"} and {status: "Qualified"} shapes
+    const raw = (data.prediction || data.status || data.result || '').toString().toLowerCase();
+    const qualified = raw.includes('qualified') && !raw.includes('not');
+
+    panel.className = 'result-panel ' + (qualified ? 'qualified' : 'not-qualified');
+    icon.textContent = qualified ? '✓' : '✗';
+    text.textContent = 'Candidate Status: ' + (qualified ? 'Qualified' : 'Not Qualified');
+
+    if (data.confidence !== undefined) {
+      meta.textContent = `Model confidence: ${(data.confidence * 100).toFixed(1)}%`;
+    } else {
+      meta.textContent = 'Assessment generated by ML model';
+    }
+
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // ── Show error ────────────────────────────────────────────────
+  function showError(msg) {
+    const panel = document.getElementById('resultPanel');
+    const icon  = document.getElementById('resultIcon');
+    const text  = document.getElementById('resultText');
+    const meta  = document.getElementById('resultMeta');
+
+    panel.className = 'result-panel error-state';
+    icon.textContent = '⚠';
+    text.textContent = 'Could not reach prediction backend';
+    meta.textContent = msg + ' — Ensure the Flask/FastAPI server is running on /predict';
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // ── Reset ─────────────────────────────────────────────────────
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    document.getElementById('predForm').reset();
+    fields.forEach(cfg => {
+      document.getElementById('field-' + cfg.id).classList.remove('has-error');
+      document.getElementById(cfg.id).classList.remove('error');
+    });
+    const panel = document.getElementById('resultPanel');
+    panel.style.display = 'none';
+    panel.className = 'result-panel';
+  });
+
+  // ── Live validation on blur ───────────────────────────────────
+  fields.forEach(cfg => {
+    document.getElementById(cfg.id).addEventListener('blur', () => validateField(cfg));
+  });
+</script>
+</body>
+</html>

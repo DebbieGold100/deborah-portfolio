@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<style>
+    .up{
+        position:absolute;
+        width:1200px;
+        height:575px;
+        background:pink;
+        z-index: 1;
+        
+    }
+    .uper{
+        position:absolute;
+        width:653px;
+        height:575px;
+        background:blue;
+        right:0px;
+        z-index: 1;
+        animation:slideout 2s ease infinite;
+    }
+    
+    
+    .box{
+        position:absolute;
+        width:300px;
+        height:45px;
+        background:red;
+        z-index: 2;
+        
+    }
+    .box2{
+        position:absolute;
+        width:500px;
+        height:45px;
+        background:yellow;
+        right:600px;
+        z-index: 2;
+      
+    }
+    .rightbox{
+          position:absolute;
+        width:250px;
+        height:250px;
+        background:purple;
+        top:70px;
+        left:80px;
+        z-index: 2;
+        animation:fade 2s ease infinite;
+    }
+    .rightdown{
+          position:absolute;
+        width:250px;
+        height:220px;
+        background:green;
+        left:80px;
+        top:350px;
+        z-index: 2;
+        animation:fade2 2s ease infinite ;
+    }
+    .smallbox{
+        position:absolute;
+        width:80px;
+        height:80px;
+        background:yellow;
+        left:50px;
+        top:500px;
+        z-index: 2;
+        animation:down 2s ease infinite;
+    }
+    .downbox{
+        position:absolute;
+        width:700px;
+        height:20px;
+        background:red;
+        right:0px;
+        top:564px;
+        z-index: 2; 
+    }
+    .smalldown{
+        position:absolute;
+        width:20px;
+        height:20px;
+        background:gray;
+        right:70px;
+        top:564px;
+        z-index: 2;
+       }
+        
+        h1,h2{
+            position:absolute;
+            width:100px;
+            text-align:center;
+            z-index: 3;
+            font-family:sans-serif;
+            color:white;  
+            right:50px;
+            font-size:40px;
+           
+  
+         
+   }
+   h1{
+       top:110px;
+       right:400px;
+       font-size:55px;
+       animation:switch 2s ease infinite;
+       
+   }
+   h2{
+       top:170px;
+       right:300px;
+       font-size:50px;
+       animation:back 2s ease infinite;
+   }
+   p{
+       position:absolute;
+       color:white;
+       width:200px;
+       top:300px;
+       z-index: 3;
+       right:550px;
+       font-size:20px;
+       animation:text 2s ease infinite;
+       
+       
+   }
+   h3{
+       position:absolute;
+       color:white;
+       z-index: 3;
+       top:200px;
+       right:620px;
+       font-size:50px;  
+       animation:fadein 2s ease infinite;
+   }
+   .container{
+       position:absolute;
+       Align-items:center;
+        z-index: 3;
+        
+   }
+   ul li{
+   position:relative;
+ list-style:none;
+ display:inline-block;
+ z-index: 3;
+ top:542px;
+ padding-left:10px;
+ left:650px;   
+ }
+  
+  .All{
+  position:absolute;
+      z-index: 4;
+      color:black;
+      font-weight:bold;
+      left:40px;
+      top:20px;
+  }  
+  @keyframes slideout{
+    0%{transform:translateX(0px);}
+    50%{transform:translateX(80px);
+    opacity:0.3;}
+  80%{transform:translateX(0px);}
+ 100%{transform:translateX(0px);}
+  
+
+
+
+  }
+
+  @keyframes switch{
+    0%{transform:translateX(-100px);}
+    100%{transform:translateX(150px);}
+     0%{transform:translateX(150px);}
+    100%{transform:translateX(-150px);}
+    
+  }
+  @keyframes back{
+    0%{transform:translateX(150px);}
+    100%{transform:translateX(-150px);}
+    0%{transform:translateX(-100px);}
+    100%{transform:translateX(150px);}
+  }
+  @keyframes fadein{
+    0%{opacity:0;}
+    100%{opacity:1;}
+    0%{opacity:1;}
+    100%{opacity:0;}
+  }
+  @keyframes text{
+    0%{opacity:0;}
+    100%{opacity:1;}
+    0%{opacity:1;}
+    100%{opacity:0;}
+  }
+   @keyframes fade{
+    0%{transform:translateY(0px);}
+    50%{transform:translateY(50px);
+    }
+  50%{transform:translateY(0px);}                             
+    0%{opacity:0;}
+  100%{opacity:1;}
+   
+ 0%{transform:translateY(50px);
+}
+    }  
+    @keyframes fade2{
+    0%{transform:translateY(0px);}
+    50%{transform:translateY(50px);}
+     0%{opacity:0;}
+  100%{opacity:1;}
+  50%{transform:translateY(0px);}
+ 0%{transform:translateY(50px);} 
+    }
+      
+    @keyframes down {
+    0%{transform:translateY(0px);}
+    50%{transform:translateY(50px);}
+     0%{opacity:0;}
+  100%{opacity:1;}
+  50%{transform:translateY(0px);}
+ 0%{transform:translateY(50px);} 
+    }      
+</style>
+
+    
+    <body>
+        <div class="up"></div>
+        <div class="uper"></div>
+         <div class="box"></div>
+         <div class="box2"></div>
+         <div class="rightbox"></div>
+         <div class="rightdown"></div>
+         <div class="smallbox"></div>
+         <div class="downbox"></div>
+         <div class="smalldown"></div>
+         <h1>Fashion</h1>
+         <h2>Forward</h2>
+         <h3>2019</h3>
+         <p>Trying to get a smooth<br>transition that works perfectly<br>i can do this and even more</p>
+         
+         <div class="container">
+         <ul>
+             <li>page</li>
+             <li>contact</li>
+         </ul>
+      </div>
+      <div class="All">AllFather</div>
+         
+
+</body>
+</html>
